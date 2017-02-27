@@ -1,0 +1,19 @@
+{
+    "name": "ahmedfathy/eloquent-media",
+    "description": "Associate files to your eloquent models",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Ahmed Fathy",
+            "email": "alfurat.eg@gmail.com"
+        }
+    ],
+    "autoload": {
+      "psr-4": {
+        "AhmedFathy\\": "src/"
+      }
+    },
+    "require": {
+      "php": ">=5.6"
+    }
+}
