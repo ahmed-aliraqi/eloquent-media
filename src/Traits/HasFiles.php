@@ -1,5 +1,5 @@
 <?php
-namespace AhmedFathy;
+namespace Aliraqi\Traits;
 use Storage;
 
 /**
