@@ -1,11 +1,11 @@
 {
-    "name": "ahmedfathy/eloquent-media",
+    "name": "ahmed-aliraqi/eloquent-media",
     "description": "Associate files to your eloquent models",
     "type": "library",
     "authors": [
         {
             "name": "Ahmed Fathy",
-            "email": "alfurat.eg@gmail.com"
+            "email": "aliraqi.dev@gmail.com"
         }
     ],
     "autoload": {
