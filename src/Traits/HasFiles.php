@@ -279,7 +279,9 @@ trait HasFiles
       $url = url($path);
 
       $url = str_replace('public/public/', 'public/', $url);
-
+      if ( ! str_contains(url()->current(), 'public')) {
+        $url = str_replace('public/', '', $url);
+      }
       return $url;
   }
 
