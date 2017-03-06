@@ -1,7 +1,6 @@
 <?php
 namespace Aliraqi\Traits;
 use Storage;
-
 /**
  * Upload and get files
  */
@@ -19,9 +18,7 @@ trait HasFiles
   | Supported Drivers: "local", "ftp", "s3", "rackspace"
   |
   */
-  private $disk = 'local';
-
-
+  private $disk = 'public';
 
   /**
    * Get link of given file name that belongs to this model instance.
@@ -40,16 +37,16 @@ trait HasFiles
 
     // Get file extention.
     $filesMatch = collect(glob($fullPath.$name.'.*'));
-
     // Check if file exists.
     if (count($filesMatch) > 0)
     {
-      // Get file basename.
       $file = class_basename($filesMatch->first());
       // Get file http url.
-      $url  = $this->getRootLink().'/'.$this->getStoragePath().$file;
+      $url  = url(Storage::url($this->makeStoragePath().$file));
+
       $url  = str_replace(DIRECTORY_SEPARATOR, '/', $url);
     }
+
     return $url;
   }
 
@@ -74,8 +71,9 @@ trait HasFiles
       // Get file basename.
       $file = class_basename($filesMatch->first());
 
-      if (Storage::disk($this->disk)->exists($this->getStoragePath().$file)) {
-        return $this->getStoragePath().$file;
+      if (Storage::disk($this->disk)->exists($this->makeStoragePath().$file)) {
+
+        return base_path($this->makeStoragePath().$file);
       }
 
     }
@@ -91,7 +89,6 @@ trait HasFiles
    */
   public function files($name)
   {
-
     // Get full path of files.
     $fullPath =$this->getFullPath().$name.DIRECTORY_SEPARATOR;
 
@@ -104,10 +101,12 @@ trait HasFiles
       foreach ($filesMatch as $filePath) {
         // Get file basename.
         $file = class_basename($filePath);
-        $url  = $this->getRootLink().'/'.$this->getStoragePath().$name.'/'.$file;
+
+        $url  = url(Storage::url($this->makeStoragePath().$name.'/'.$file));
+
         $url  = str_replace(DIRECTORY_SEPARATOR, '/', $url);
         // Get file http url with delete path.  [$pathToDelete => $fileUrl]
-        $urls[$this->getStoragePath().$name.DIRECTORY_SEPARATOR.$file] = $url;
+        $urls[$this->makeStoragePath().$name.DIRECTORY_SEPARATOR.$file] = $url;
       }
     }
 
@@ -125,7 +124,7 @@ trait HasFiles
   public function putFile($key, $name = null, $options = [])
   {
     // Path of given file.
-    $path = $this->getStoragePath();
+    $path = $this->makeStoragePath();
 
     // Set file basename.
     $name = is_null($name) ? $key : $name;
@@ -157,6 +156,7 @@ trait HasFiles
       $disk = isset($options['disk']) ? $options['disk'] : $this->disk;
 
       $options = array_merge($options, ['disk' => $disk]);
+
       return request()->file($key)->storeAs($path, $name, $options);
     }
   }
@@ -177,7 +177,7 @@ trait HasFiles
     $name = is_null($name) ? $key : $name;
 
     // Path of given file.
-    $path = $this->getStoragePath().$name;
+    $path = $this->makeStoragePath().$name;
 
 
     // Get full path of file.
@@ -226,7 +226,7 @@ trait HasFiles
    *
    * @return string
    */
-  public function getStoragePath()
+  public function makeStoragePath()
   {
       if ($this->is_global)
       {
@@ -262,28 +262,6 @@ trait HasFiles
       return config('fallbackimages.'.$this->getTable());
   }
 
-  /**
-   * Convert path to http link.
-   *
-   * @return string
-   */
-  public function getRootLink()
-  {
-
-      $pathArray = explode(base_path(), config('filesystems.disks.'.$this->disk.'.root'));
-
-      $path = implode('', $pathArray);
-
-      $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
-
-      $url = url($path);
-
-      $url = str_replace('public/public/', 'public/', $url);
-      if ( ! str_contains(url()->current(), 'public')) {
-        $url = str_replace('public/', '', $url);
-      }
-      return $url;
-  }
 
     /**
      * Determine if the assiciated files is global or not.
