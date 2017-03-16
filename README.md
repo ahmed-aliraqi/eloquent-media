@@ -14,10 +14,7 @@ In your `config/filesystems.php` file confiure `disks.local` key to match your p
     'root' => public_path('uploads'),
 ],
 ```
-To create the symbolic link, you may use the `storage:link` Artisan command:
-```
-php artisan storage:link
-```
+
 ### Usage
 ```php
 namespace App;
@@ -190,6 +187,9 @@ return [
 
     // Get posts fallback image url.
     'posts' => 'http://lorempixel.com/grey/800/400/cats/Faker/',
+
+	// If You do not run application using artisan serve.
+    'remove_public_from_url' => false,
 ];
 
 ```
