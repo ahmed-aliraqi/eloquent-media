@@ -22,6 +22,8 @@ trait HasFiles
     */
     private $disk = 'local';
 
+    private static $staticDisk = 'local';
+
     /**
      * Get link of given file name that belongs to this model instance.
      *
@@ -318,6 +320,29 @@ trait HasFiles
     public function disk ($name = 'local')
     {
         $this->disk = $name;
+        self::$staticDisk = $name;
         return $this;
     }
+
+    /**
+     * The "booting" method of the model.
+     * Delete the files when force delete the item.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        /**
+         * Listen to the Model deleting event.
+         */
+        static::deleting(function ($item) {
+            if (is_null($item->forceDeleting) || $item->forceDeleting) {
+                // delete instance files
+                Storage::disk(self::$staticDisk)->deleteDirectory($item->getTable().'/'.$item->id);
+            }
+        });
+
+        parent::boot();
+    }
+
 }
