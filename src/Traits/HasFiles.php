@@ -1,4 +1,5 @@
 <?php
+
 namespace Aliraqi\Traits;
 
 use Storage;
@@ -32,22 +33,23 @@ trait HasFiles
      *
      * @return string
      */
-    public function file ($name = null, $fallback = null)
+    public function file($name = null, $fallback = null)
     {
         // Set fallback url by table name if null.
         $url = is_null($fallback) ? $this->getFallback() : $fallback;
         // Get full path of file.
         $fullPath = $this->getFullPath();
         // Get file extention.
-        $filesMatch = collect(glob($fullPath . $name . '.*'));
+        $filesMatch = collect(glob($fullPath.$name.'.*'));
         // Check if file exists.
         if (count($filesMatch) > 0) {
             // Get file basename.
             $file = class_basename($filesMatch->first());
             // Get file http url.
-            $url = $this->getRootLink() . '/' . $this->getStoragePath() . $file;
+            $url = $this->getRootLink().'/'.$this->getStoragePath().$file;
             $url = str_replace(DIRECTORY_SEPARATOR, '/', $url);
         }
+
         return $url;
     }
 
@@ -59,25 +61,25 @@ trait HasFiles
      *
      * @return string | null
      */
-    public function filePath ($name = null, $type = 'storage')
+    public function filePath($name = null, $type = 'storage')
     {
         // Get full path of file.
         $fullPath = $this->getFullPath();
         // Get file extention.
-        $filesMatch = collect(glob($fullPath . $name . '.*'));
+        $filesMatch = collect(glob($fullPath.$name.'.*'));
         // Check if file exists.
         if (count($filesMatch) > 0) {
             // Get file basename.
             $file = class_basename($filesMatch->first());
-            if (Storage::disk($this->disk)->exists($this->getStoragePath() . $file)) {
+            if (Storage::disk($this->disk)->exists($this->getStoragePath().$file)) {
                 if ($type == 'storage') {
-                    return $this->getStoragePath() . $file;
-                }
-                elseif ($type == 'full') {
-                    return $fullPath . $file;
+                    return $this->getStoragePath().$file;
+                } elseif ($type == 'full') {
+                    return $fullPath.$file;
                 }
             }
         }
+
         return null;
     }
 
@@ -88,24 +90,25 @@ trait HasFiles
      *
      * @return Illuminate\Support\Collection
      */
-    public function files ($name)
+    public function files($name)
     {
         // Get full path of files.
-        $fullPath = $this->getFullPath() . $name . DIRECTORY_SEPARATOR;
+        $fullPath = $this->getFullPath().$name.DIRECTORY_SEPARATOR;
         // Get files array.
-        $filesMatch = glob($fullPath . '*.*');
+        $filesMatch = glob($fullPath.'*.*');
         // Check if files exists.
         $urls = collect([]);
         if (count($filesMatch) > 0) {
             foreach ($filesMatch as $filePath) {
                 // Get file basename.
                 $file = class_basename($filePath);
-                $url = $this->getRootLink() . '/' . $this->getStoragePath() . $name . '/' . $file;
+                $url = $this->getRootLink().'/'.$this->getStoragePath().$name.'/'.$file;
                 $url = str_replace(DIRECTORY_SEPARATOR, '/', $url);
                 // Get file http url with delete path.  [$pathToDelete => $fileUrl]
-                $urls[$this->getStoragePath() . $name . DIRECTORY_SEPARATOR . $file] = $url;
+                $urls[$this->getStoragePath().$name.DIRECTORY_SEPARATOR.$file] = $url;
             }
         }
+
         return collect($urls);
     }
 
@@ -114,11 +117,11 @@ trait HasFiles
      *
      * @param  string $key
      * @param  string $name
-     * @param  array  $options
+     * @param  array $options
      *
      * @return string  File path
      */
-    public function putFile ($key, $name = null, $options = [])
+    public function putFile($key, $name = null, $options = [])
     {
         // Path of given file.
         $path = $this->getStoragePath();
@@ -127,7 +130,7 @@ trait HasFiles
         // Get full path of file.
         $fullPath = $this->getFullPath();
         // Get file extention.
-        $filesMatch = glob($fullPath . $name . '.*');
+        $filesMatch = glob($fullPath.$name.'.*');
         // Upload the new file.
         if (request()->hasFile($key)) {
             // Check if files exists.
@@ -137,16 +140,49 @@ trait HasFiles
                     // Get files basename to delete.
                     $file = class_basename($oldPath);
                     // Delete file.
-                    Storage::disk($this->disk)->delete($path . $file);
+                    Storage::disk($this->disk)->delete($path.$file);
                 }
             }
             // Get file extension.
             $extension = request()->file($key)->extension();
-            $name = $name . '.' . $extension;
+            $name = $name.'.'.$extension;
             $disk = isset($options['disk']) ? $options['disk'] : $this->disk;
             $options = array_merge($options, ['disk' => $disk]);
+
             return request()->file($key)->storeAs($path, $name, $options);
         }
+    }
+
+    /**
+     * Add or override model image from request if supplied in the form.
+     *
+     * @param $key
+     * @param null $name
+     * @param array $options
+     * @return $this
+     */
+    public function putBase64File($key, $name = null, $options = [])
+    {
+        if (request()->has($key) && ! request()->file($key)) {
+
+            $imageData = base64_decode(request()->input($key));
+
+            //return $image;
+            if (base64_decode(request()->input('avatar'), true) === false){
+                return response()->json([
+                    'errors' => [
+                        'avatar' => [
+                            trans('users.avatar-error')
+                        ],
+                    ]
+                ], 422);
+            }
+            $name = $name ?: $key;
+
+            Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode(request()->input($key)));
+        }
+
+        return $this;
     }
 
     /**
@@ -154,11 +190,11 @@ trait HasFiles
      *
      * @param  string $requestFile
      * @param  string $name
-     * @param  array  $options
+     * @param  array $options
      *
      * @return string  File path
      */
-    public function putFileFromRequest ($requestFile, $name = null, $options = [])
+    public function putFileFromRequest($requestFile, $name = null, $options = [])
     {
         // Path of given file.
         $path = $this->getStoragePath();
@@ -167,7 +203,7 @@ trait HasFiles
         // Get full path of file.
         $fullPath = $this->getFullPath();
         // Get file extention.
-        $filesMatch = glob($fullPath . $name . '.*');
+        $filesMatch = glob($fullPath.$name.'.*');
         // Upload the new file.
         if ($requestFile) {
             // Check if files exists.
@@ -177,14 +213,15 @@ trait HasFiles
                     // Get files basename to delete.
                     $file = class_basename($oldPath);
                     // Delete file.
-                    Storage::disk($this->disk)->delete($path . $file);
+                    Storage::disk($this->disk)->delete($path.$file);
                 }
             }
             // Get file extension.
             $extension = $requestFile->extension();
-            $name = $name . '.' . $extension;
+            $name = $name.'.'.$extension;
             $disk = isset($options['disk']) ? $options['disk'] : $this->disk;
             $options = array_merge($options, ['disk' => $disk]);
+
             return $requestFile->storeAs($path, $name, $options);
         }
     }
@@ -192,23 +229,23 @@ trait HasFiles
     /**
      * Upload given file to this model instance.
      *
-     * @param  string  $key
-     * @param  string  $name
+     * @param  string $key
+     * @param  string $name
      * @param  boolean $delete
-     * @param  array   $options
+     * @param  array $options
      *
      * @return string  File path
      */
-    public function putFiles ($key, $name = null, $delete = false, $options = [])
+    public function putFiles($key, $name = null, $delete = false, $options = [])
     {
         // Set file basename.
         $name = is_null($name) ? $key : $name;
         // Path of given file.
-        $path = $this->getStoragePath() . $name;
+        $path = $this->getStoragePath().$name;
         // Get full path of file.
-        $fullPath = $this->getFullPath() . $name . DIRECTORY_SEPARATOR;
+        $fullPath = $this->getFullPath().$name.DIRECTORY_SEPARATOR;
         // Get file extention.
-        $filesMatch = glob($fullPath . '*.*');
+        $filesMatch = glob($fullPath.'*.*');
         // Upload the new file.
         if (is_array(request()->file($key))) {
             foreach (request()->file($key) as $requestFile) {
@@ -220,13 +257,13 @@ trait HasFiles
                             // Get files basename to delete.
                             $file = class_basename($oldPath);
                             // Delete file.
-                            Storage::disk($this->disk)->delete($path . '/' . $file);
+                            Storage::disk($this->disk)->delete($path.'/'.$file);
                         }
                     }
                 }
                 // Get file extension.
                 $extension = $requestFile->extension();
-                $name = uniqid() . '.' . $extension;
+                $name = uniqid().'.'.$extension;
                 $disk = isset($options['disk']) ? $options['disk'] : $this->disk;
                 $options = array_merge($options, ['disk' => $disk]);
                 $requestFile->storeAs($path, $name, $options);
@@ -234,18 +271,18 @@ trait HasFiles
         }
     }
 
-
     /**
      * Get upload path.
      *
      * @return string
      */
-    public function getStoragePath ()
+    public function getStoragePath()
     {
         if ($this->is_global) {
-            return $this->getTable() . DIRECTORY_SEPARATOR;
+            return $this->getTable().DIRECTORY_SEPARATOR;
         }
-        return $this->getTable() . DIRECTORY_SEPARATOR . $this->getKey() . DIRECTORY_SEPARATOR;
+
+        return $this->getTable().DIRECTORY_SEPARATOR.$this->getKey().DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -253,12 +290,13 @@ trait HasFiles
      *
      * @return string
      */
-    public function getFullPath ()
+    public function getFullPath()
     {
         if ($this->is_global) {
-            return config('filesystems.disks.' . $this->disk . '.root') . DIRECTORY_SEPARATOR . $this->getTable() . DIRECTORY_SEPARATOR;
+            return config('filesystems.disks.'.$this->disk.'.root').DIRECTORY_SEPARATOR.$this->getTable().DIRECTORY_SEPARATOR;
         }
-        return config('filesystems.disks.' . $this->disk . '.root') . DIRECTORY_SEPARATOR . $this->getTable() . DIRECTORY_SEPARATOR . $this->getKey() . DIRECTORY_SEPARATOR;
+
+        return config('filesystems.disks.'.$this->disk.'.root').DIRECTORY_SEPARATOR.$this->getTable().DIRECTORY_SEPARATOR.$this->getKey().DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -266,9 +304,9 @@ trait HasFiles
      *
      * @return string
      */
-    public function getFallback ()
+    public function getFallback()
     {
-        return config('fallbackimages.' . $this->getTable());
+        return config('fallbackimages.'.$this->getTable());
     }
 
     /**
@@ -276,9 +314,9 @@ trait HasFiles
      *
      * @return string
      */
-    public function getRootLink ()
+    public function getRootLink()
     {
-        $pathArray = explode(base_path(), config('filesystems.disks.' . $this->disk . '.root'));
+        $pathArray = explode(base_path(), config('filesystems.disks.'.$this->disk.'.root'));
         $path = implode('', $pathArray);
         $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         $url = url($path);
@@ -290,10 +328,11 @@ trait HasFiles
          * ['remove_public_from_url' => true] to config/fallbackimages.php file
          */
         if (config('fallbackimages.remove_public_from_url')) {
-            if ( ! str_contains(url()->current(), 'public')) {
+            if (! str_contains(url()->current(), 'public')) {
                 $url = str_replace('public/', '', $url);
             }
         }
+
         return $url;
     }
 
@@ -304,9 +343,10 @@ trait HasFiles
      *
      * @return Illuminate\Database\Eloquent\Model
      */
-    public function hasGlobal ($value = true)
+    public function hasGlobal($value = true)
     {
         $this->is_global = $value;
+
         return $this;
     }
 
@@ -317,32 +357,28 @@ trait HasFiles
      *
      * @return Illuminate\Database\Eloquent\Model
      */
-    public function disk ($name = 'local')
+    public function disk($name = 'local')
     {
         $this->disk = $name;
         self::$staticDisk = $name;
+
         return $this;
     }
 
     /**
-     * The "booting" method of the model.
+     * Register model events
      * Delete the files when force delete the item.
      *
      * @return void
      */
-    public static function boot()
+    public static function bootHasFiles()
     {
-        /**
-         * Listen to the Model deleting event.
-         */
+        // Listen to the Model deleting event.
         static::deleting(function ($item) {
             if (is_null($item->forceDeleting) || $item->forceDeleting) {
                 // delete instance files
                 Storage::disk(self::$staticDisk)->deleteDirectory($item->getTable().'/'.$item->id);
             }
         });
-
-        parent::boot();
     }
-
 }
