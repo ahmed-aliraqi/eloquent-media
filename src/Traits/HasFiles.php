@@ -164,10 +164,7 @@ trait HasFiles
     public function putBase64File($key, $name = null, $options = [])
     {
         if (request()->has($key) && ! request()->file($key)) {
-
-            $imageData = base64_decode(request()->input($key));
-
-            //return $image;
+            
             if (base64_decode(request()->input('avatar'), true) === false){
                 return response()->json([
                     'errors' => [
