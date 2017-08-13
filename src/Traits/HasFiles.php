@@ -164,16 +164,7 @@ trait HasFiles
     public function putBase64File($key, $name = null, $options = [])
     {
         if (request()->has($key) && ! request()->file($key)) {
-            
-            if (base64_decode(request()->input('avatar'), true) === false){
-                return response()->json([
-                    'errors' => [
-                        'avatar' => [
-                            trans('users.avatar-error')
-                        ],
-                    ]
-                ], 422);
-            }
+
             $name = $name ?: $key;
 
             Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode(request()->input($key)));
@@ -244,6 +235,78 @@ trait HasFiles
         // Get file extention.
         $filesMatch = glob($fullPath.'*.*');
         // Upload the new file.
+        if (is_array(request()->file($key))) {
+            foreach (request()->file($key) as $requestFile) {
+                if ($delete) {
+                    // Check if files exists.
+                    if (count($filesMatch) > 0) {
+                        // List of old files.
+                        foreach ($filesMatch as $oldPath) {
+                            // Get files basename to delete.
+                            $file = class_basename($oldPath);
+                            // Delete file.
+                            Storage::disk($this->disk)->delete($path.'/'.$file);
+                        }
+                    }
+                }
+                // Get file extension.
+                $extension = $requestFile->extension();
+                $name = uniqid().'.'.$extension;
+                $disk = isset($options['disk']) ? $options['disk'] : $this->disk;
+                $options = array_merge($options, ['disk' => $disk]);
+                $requestFile->storeAs($path, $name, $options);
+            }
+        }
+    }
+
+    /**
+     * Upload given file to this model instance.
+     *
+     * @param  string $key
+     * @param  string $name
+     * @param  boolean $delete
+     * @param  array $options
+     *
+     * @return string  File path
+     */
+    public function putBase64Files($key, $name = null, $delete = false, $options = [])
+    {
+        // Set file basename.
+        $name = is_null($name) ? $key : $name;
+        // Path of given file.
+        $path = $this->getStoragePath().$name;
+        // Get full path of file.
+        $fullPath = $this->getFullPath().$name.DIRECTORY_SEPARATOR;
+        // Get file extention.
+        $filesMatch = glob($fullPath.'*.*');
+        // Upload the new file.
+
+        if (is_array(request()->input($key))) {
+
+            foreach (request()->input($key) as $inputKey => $requestFile) {
+
+                if ($delete) {
+                    // Check if files exists.
+                    if (count($filesMatch) > 0) {
+                        // List of old files.
+                        foreach ($filesMatch as $oldPath) {
+                            // Get files basename to delete.
+                            $file = class_basename($oldPath);
+                            // Delete file.
+                            Storage::disk($this->disk)->delete($path.'/'.$file);
+                        }
+                    }
+                }
+                $name = $name ?: $key;
+
+                $name = uniqid().'.jpg';
+
+                Storage::put($path.'/'.$name, base64_decode($requestFile));
+            }
+
+        }
+
+
         if (is_array(request()->file($key))) {
             foreach (request()->file($key) as $requestFile) {
                 if ($delete) {
