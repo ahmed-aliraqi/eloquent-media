@@ -5,7 +5,7 @@ namespace Aliraqi\Traits;
 use Storage;
 
 /**
- * Upload and get files
+ * Upload and get files.
  */
 trait HasFiles
 {
@@ -28,8 +28,8 @@ trait HasFiles
     /**
      * Get link of given file name that belongs to this model instance.
      *
-     * @param  string $name
-     * @param  string $fallback
+     * @param string $name
+     * @param string $fallback
      *
      * @return string
      */
@@ -56,8 +56,8 @@ trait HasFiles
     /**
      * Get path of given file name that belongs to this model instance.
      *
-     * @param  string $name
-     * @param  string $type
+     * @param string $name
+     * @param string $type
      *
      * @return string | null
      */
@@ -79,14 +79,12 @@ trait HasFiles
                 }
             }
         }
-
-        return null;
     }
 
     /**
      * Get array of given files name that belongs to this model instance.
      *
-     * @param  string $name name of folder
+     * @param string $name name of folder
      *
      * @return Illuminate\Support\Collection
      */
@@ -115,11 +113,11 @@ trait HasFiles
     /**
      * Upload given file to this model instance.
      *
-     * @param  string $key
-     * @param  string $name
-     * @param  array $options
+     * @param string $key
+     * @param string $name
+     * @param array  $options
      *
-     * @return string  File path
+     * @return string File path
      */
     public function putFile($key, $name = null, $options = [])
     {
@@ -157,14 +155,14 @@ trait HasFiles
      * Add or override model image from request if supplied in the form.
      *
      * @param $key
-     * @param null $name
+     * @param null  $name
      * @param array $options
+     *
      * @return $this
      */
     public function putBase64File($key, $name = null, $options = [])
     {
-        if (request()->has($key) && ! request()->file($key)) {
-
+        if (request()->has($key) && !request()->file($key)) {
             $name = $name ?: $key;
 
             Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode(request()->input($key)));
@@ -176,11 +174,11 @@ trait HasFiles
     /**
      * Upload given file to this model instance by request.
      *
-     * @param  string $requestFile
-     * @param  string $name
-     * @param  array $options
+     * @param string $requestFile
+     * @param string $name
+     * @param array  $options
      *
-     * @return string  File path
+     * @return string File path
      */
     public function putFileFromRequest($requestFile, $name = null, $options = [])
     {
@@ -217,12 +215,12 @@ trait HasFiles
     /**
      * Upload given file to this model instance.
      *
-     * @param  string $key
-     * @param  string $name
-     * @param  boolean $delete
-     * @param  array $options
+     * @param string $key
+     * @param string $name
+     * @param bool   $delete
+     * @param array  $options
      *
-     * @return string  File path
+     * @return string File path
      */
     public function putFiles($key, $name = null, $delete = false, $options = [])
     {
@@ -262,12 +260,12 @@ trait HasFiles
     /**
      * Upload given file to this model instance.
      *
-     * @param  string $key
-     * @param  string $name
-     * @param  boolean $delete
-     * @param  array $options
+     * @param string $key
+     * @param string $name
+     * @param bool   $delete
+     * @param array  $options
      *
-     * @return string  File path
+     * @return string File path
      */
     public function putBase64Files($key, $name = null, $delete = false, $options = [])
     {
@@ -282,9 +280,7 @@ trait HasFiles
         // Upload the new file.
 
         if (is_array(request()->input($key))) {
-
             foreach (request()->input($key) as $inputKey => $requestFile) {
-
                 if ($delete) {
                     // Check if files exists.
                     if (count($filesMatch) > 0) {
@@ -303,9 +299,7 @@ trait HasFiles
 
                 Storage::put($path.'/'.$name, base64_decode($requestFile));
             }
-
         }
-
 
         if (is_array(request()->file($key))) {
             foreach (request()->file($key) as $requestFile) {
@@ -382,13 +376,13 @@ trait HasFiles
         $url = url($path);
         $url = str_replace('public/public/', 'public/', $url);
 
-        /**
+        /*
          * if You run application using artisan serve.
          * you must add this option
          * ['remove_public_from_url' => true] to config/fallbackimages.php file
          */
         if (config('fallbackimages.remove_public_from_url')) {
-            if (! str_contains(url()->current(), 'public')) {
+            if (!str_contains(url()->current(), 'public')) {
                 $url = str_replace('public/', '', $url);
             }
         }
@@ -399,7 +393,7 @@ trait HasFiles
     /**
      * Determine if the assiciated files is global or not.
      *
-     * @param  boolean $value
+     * @param bool $value
      *
      * @return Illuminate\Database\Eloquent\Model
      */
@@ -413,7 +407,7 @@ trait HasFiles
     /**
      * Determine a filesystem instance.
      *
-     * @param  string $name
+     * @param string $name
      *
      * @return Illuminate\Database\Eloquent\Model
      */
