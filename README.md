@@ -1,4 +1,12 @@
 # eloquent-media
+
+<p align="center">
+<a href="https://travis-ci.org/ahmed-aliraqi/eloquent-media"><img src="https://travis-ci.org/ahmed-aliraqi/eloquent-media.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/ahmed-aliraqi/eloquent-media"><img src="https://poser.pugx.org/ahmed-aliraqi/eloquent-media/d/total.svg" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/ahmed-aliraqi/eloquent-media"><img src="https://poser.pugx.org/ahmed-aliraqi/eloquent-media/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/ahmed-aliraqi/eloquent-media"><img src="https://poser.pugx.org/ahmed-aliraqi/eloquent-media/license.svg" alt="License"></a>
+</p>
+
 A php trait that's provides an easy way to associate images and/or files for your laravel eloquent models.
 
 ### Installation
