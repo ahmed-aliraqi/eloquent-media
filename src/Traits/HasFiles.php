@@ -5,7 +5,7 @@ namespace Aliraqi\Traits;
 use Storage;
 
 /**
- * Upload and get files
+ * Upload and get files.
  */
 trait HasFiles
 {
@@ -159,12 +159,12 @@ trait HasFiles
      * @param $key
      * @param null $name
      * @param array $options
+     *
      * @return $this
      */
     public function putBase64File($key, $name = null, $options = [])
     {
         if (request()->has($key) && ! request()->file($key)) {
-
             $name = $name ?: $key;
 
             Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode(request()->input($key)));
@@ -219,7 +219,7 @@ trait HasFiles
      *
      * @param  string $key
      * @param  string $name
-     * @param  boolean $delete
+     * @param  bool $delete
      * @param  array $options
      *
      * @return string  File path
@@ -264,7 +264,7 @@ trait HasFiles
      *
      * @param  string $key
      * @param  string $name
-     * @param  boolean $delete
+     * @param  bool $delete
      * @param  array $options
      *
      * @return string  File path
@@ -282,9 +282,7 @@ trait HasFiles
         // Upload the new file.
 
         if (is_array(request()->input($key))) {
-
             foreach (request()->input($key) as $inputKey => $requestFile) {
-
                 if ($delete) {
                     // Check if files exists.
                     if (count($filesMatch) > 0) {
@@ -303,9 +301,7 @@ trait HasFiles
 
                 Storage::put($path.'/'.$name, base64_decode($requestFile));
             }
-
         }
-
 
         if (is_array(request()->file($key))) {
             foreach (request()->file($key) as $requestFile) {
@@ -382,7 +378,7 @@ trait HasFiles
         $url = url($path);
         $url = str_replace('public/public/', 'public/', $url);
 
-        /**
+        /*
          * if You run application using artisan serve.
          * you must add this option
          * ['remove_public_from_url' => true] to config/fallbackimages.php file
@@ -399,7 +395,7 @@ trait HasFiles
     /**
      * Determine if the assiciated files is global or not.
      *
-     * @param  boolean $value
+     * @param  bool $value
      *
      * @return Illuminate\Database\Eloquent\Model
      */
