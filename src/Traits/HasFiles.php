@@ -5,7 +5,7 @@ namespace Aliraqi\Traits;
 use Storage;
 
 /**
- * Upload and get files.
+ * Upload and get files
  */
 trait HasFiles
 {
@@ -159,15 +159,20 @@ trait HasFiles
      * @param $key
      * @param null $name
      * @param array $options
-     *
      * @return $this
      */
     public function putBase64File($key, $name = null, $options = [])
     {
         if (request()->has($key) && ! request()->file($key)) {
-            $name = $name ?: $key;
 
-            Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode(request()->input($key)));
+            $name = $name ?: $key;
+            $requestFile = request()->input($key);
+            if (str_contains(';', $requestFile)) {
+                list($type, $requestFile) = explode(';', $requestFile);
+                list(, $requestFile) = explode(',', $requestFile);
+            }
+
+            Storage::put($this->getTable().'/'.$this->id.'/'.$name.'.jpg', base64_decode($requestFile));
         }
 
         return $this;
@@ -219,7 +224,7 @@ trait HasFiles
      *
      * @param  string $key
      * @param  string $name
-     * @param  bool $delete
+     * @param  boolean $delete
      * @param  array $options
      *
      * @return string  File path
@@ -264,7 +269,7 @@ trait HasFiles
      *
      * @param  string $key
      * @param  string $name
-     * @param  bool $delete
+     * @param  boolean $delete
      * @param  array $options
      *
      * @return string  File path
@@ -282,7 +287,14 @@ trait HasFiles
         // Upload the new file.
 
         if (is_array(request()->input($key))) {
+
             foreach (request()->input($key) as $inputKey => $requestFile) {
+
+                if (str_contains(';', $requestFile)) {
+                    list($type, $requestFile) = explode(';', $requestFile);
+                    list(, $requestFile) = explode(',', $requestFile);
+                }
+
                 if ($delete) {
                     // Check if files exists.
                     if (count($filesMatch) > 0) {
@@ -378,13 +390,13 @@ trait HasFiles
         $url = url($path);
         $url = str_replace('public/public/', 'public/', $url);
 
-        /*
+        /**
          * if You run application using artisan serve.
          * you must add this option
          * ['remove_public_from_url' => true] to config/fallbackimages.php file
          */
         if (config('fallbackimages.remove_public_from_url')) {
-            if (! str_contains(url()->current(), 'public')) {
+            if ( ! str_contains(url()->current(), 'public')) {
                 $url = str_replace('public/', '', $url);
             }
         }
@@ -395,7 +407,7 @@ trait HasFiles
     /**
      * Determine if the assiciated files is global or not.
      *
-     * @param  bool $value
+     * @param  boolean $value
      *
      * @return Illuminate\Database\Eloquent\Model
      */
