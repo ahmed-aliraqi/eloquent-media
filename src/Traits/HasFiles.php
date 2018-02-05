@@ -294,7 +294,6 @@ trait HasFiles
                     list($type, $requestFile) = explode(';', $requestFile);
                     list(, $requestFile) = explode(',', $requestFile);
                 }
-                dd($requestFile);
 
                 if ($delete) {
                     // Check if files exists.
