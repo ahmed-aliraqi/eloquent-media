@@ -167,7 +167,7 @@ trait HasFiles
 
             $name = $name ?: $key;
             $requestFile = request()->input($key);
-            if (str_contains(';', $requestFile)) {
+            if (str_contains($requestFile, ';')) {
                 list($type, $requestFile) = explode(';', $requestFile);
                 list(, $requestFile) = explode(',', $requestFile);
             }
@@ -290,10 +290,11 @@ trait HasFiles
 
             foreach (request()->input($key) as $inputKey => $requestFile) {
 
-                if (str_contains(';', $requestFile)) {
+                if (str_contains($requestFile, ';')) {
                     list($type, $requestFile) = explode(';', $requestFile);
                     list(, $requestFile) = explode(',', $requestFile);
                 }
+                dd($requestFile);
 
                 if ($delete) {
                     // Check if files exists.
