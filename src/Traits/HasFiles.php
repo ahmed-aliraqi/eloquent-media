@@ -154,6 +154,22 @@ trait HasFiles
     }
 
     /**
+     * @param string $input
+     * @param string $url
+     * @return $this
+     */
+    public function putFileFromUrl($input, $url)
+    {
+        $content = file_get_contents($url);
+
+        $path = $this->getFullPath().$input.'.jpg';
+
+        file_put_contents($path, $content);
+
+        return $this;
+    }
+
+    /**
      * Add or override model image from request if supplied in the form.
      *
      * @param $key
@@ -396,7 +412,7 @@ trait HasFiles
          * ['remove_public_from_url' => true] to config/fallbackimages.php file
          */
         if (config('fallbackimages.remove_public_from_url')) {
-            if ( ! str_contains(url()->current(), 'public')) {
+            if (! str_contains(url()->current(), 'public')) {
                 $url = str_replace('public/', '', $url);
             }
         }
