@@ -162,6 +162,10 @@ trait HasFiles
     {
         $content = file_get_contents($url);
 
+        if (! is_dir($this->getFullPath())) {
+            mkdir($this->getFullPath(), 0777, true);
+        }
+
         $path = $this->getFullPath().$input.'.jpg';
 
         file_put_contents($path, $content);
